@@ -51,3 +51,20 @@ body {
 .row-column {
     display: flex;
 }
+
+div#sheet-content-col-index {
+
+}
+
+div#sheet-content-col-head-index {
+    height: 28px;
+    min-height: 28px;
+    width: 50px;
+    border: 1px solid #dcdcdc;
+    background-color: rgb(245, 245, 245);
+    box-sizing: border-box;
+}
+
+div#sheet-content {
+    display: flex;
+}
