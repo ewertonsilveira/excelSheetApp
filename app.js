@@ -18,6 +18,7 @@ class InputValueData {
 class ExcellApp {
     app;
     alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ]
+    operators = ["+", "-", "*", "/", "%"]
     
     constructor(name) {
         this.sheetName = name;
@@ -75,7 +76,11 @@ class ExcellApp {
         refreshPageBtn.setAttribute('class', 'button-success pure-button')
         refreshPageBtn.id="app-refresh"
 
+        let refreshingContent = this.createElement('div');
+        refreshingContent.id = "loading"
+        
         mainHeader.appendChild(refreshPageBtn);
+        mainHeader.appendChild(refreshingContent);
         appMain.appendChild(mainHeader);
     }
 
@@ -138,6 +143,7 @@ class ExcellApp {
     }
 
     buldSheetRowsAndColumns(columns, sheetBaseMatrix) {
+        let rows = []
         for (let index = 1; index <= ROWS_MAX; index++) {
             let rowIndex = index;
             let row = this.createElement('div');
@@ -164,17 +170,18 @@ class ExcellApp {
     saveDataToStore(e) {
         let id = e.target.id;
         let parentId = e.target.parentElement.id;
-        let key = `${parentId}-${id}`;
+        let key = `${id}${parentId}`;
 
         let builtInFunc = '';
         let value = e.target.value;
         let equation = e.target.value;
         if(value.startsWith("=")) {
+            // This is too simple, requires way more work
             value = eval(value.substring(1, value.length)); //The Evill!!! 
             e.target.value = value ? value : '';
         }
 
-        let inputValue = new InputValueData(id, value, equation, builtInFunc);
+        let inputValue = new InputValueData(key, value, equation, builtInFunc);
 
         store.cells[key] = inputValue;
         console.log(key, value);
@@ -184,7 +191,7 @@ class ExcellApp {
     retrieveDataFromToStore(e) {
         let id = e.target.id;
         let parentId = e.target.parentElement.id;
-        let key = `${parentId}-${id}`;
+        let key = `${id}${parentId}`;
 
         let inputData = store.cells[key];
         if(!inputData) {
@@ -200,17 +207,26 @@ class ExcellApp {
     }
 
     refreshSheetContent() {
-        let appHeader = document.getElementById('app-header');
-        let refreshingContent = this.createElement('div');
-        refreshingContent.setAttribute('class', 'loading')
-        appHeader.appendChild(refreshingContent);
+        let loading = document.getElementById('loading');
+        loading.setAttribute("class", "loading");
         
-        setTimeout(function(){ refreshingContent.parentNode.removeChild(refreshingContent) }, 2000);
+        setTimeout(function(){ loading.removeAttribute("class") }, 2300);
         
         let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
-        sheetBaseMatrix.innerHTML = '';
+        sheetBaseMatrix.innerHTML = 'loading...';
         let columns = this.buildSheetContentColumn();
-        this.buldSheetRowsAndColumns(columns, sheetBaseMatrix);
+
+        let tmp = this.createElement('div')
+        this.buldSheetRowsAndColumns(columns, tmp);
+        sheetBaseMatrix.innerHTML = tmp.innerHTML;
+
+        this.rePopulateUserDataFromStore();
+
+        this.hookUpInputEvent();
+    }
+
+    rePopulateUserDataFromStore() {
+        console.log(store.cells)
     }
 
     createElementWithValue(type, value) {
