@@ -3,18 +3,22 @@ const COL_MAX = 100;
 
 class ExcellApp {
     app;
+    alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ]
+    
     constructor(name) {
         this.sheetName = name;
     }
 
     init() {
         console.debug("App stated...");
-        this.logTime('Start building app');
+        this.logTime('Start:');
         
         app = document.getElementById("app");
         this.drawAppContent();
 
-        this.logTime('Finising building app');
+        this.hookUpInputEvent(); 
+
+        this.logTime('End:  ');
     }
 
     drawAppContent() {
@@ -54,8 +58,9 @@ class ExcellApp {
 
         // Create Content head columns [A,B,C...]
         for (let index = 1; index <= COL_MAX; index++) {
-            let colIndex = this.createElementWithValue('div', index);
-            colIndex.id = `sc${index}`;
+            let letter = this.pickAplhabetLetterBasedOn(index);
+            let colIndex = this.createElementWithValue('div', letter);
+            colIndex.id = `${index}-${letter}`;
             colIndex.setAttribute('class', "sheet--col-index");
             sheetContentColIndex.appendChild(colIndex);
         }
@@ -65,6 +70,7 @@ class ExcellApp {
     buildSheetContentRowIndex() {
         let sheetContentRowIndex = this.createElement('div');
         sheetContentRowIndex.id = "sheet-content-row-index";
+
         // Create Content head rows [1,2,3...]
         for (let index = 1; index <= ROWS_MAX; index++) {
 
@@ -77,13 +83,31 @@ class ExcellApp {
         return sheetContentRowIndex;
     }
 
+    buildSheetContentColumn() {
+        let columns = this.createElement('div');
+        columns.setAttribute('class', "row-column");
+
+        for (let index = 1; index <= COL_MAX; index++) {
+            // let colIndex = this.createElement('div');
+            // colIndex.id = `c${index}`;
+            // colIndex.setAttribute('class', "col-inner");
+            // colIndex.appendChild(input);
+
+            let input = this.createElement('input');
+            input.id = `i${index}`;
+            input.setAttribute('class', "sheet--input");
+
+            columns.appendChild(input);
+        }
+        return columns;
+    }
+
     buildSheetContentRows(columns) {
         let sheetBaseMatrix = this.createElement('div');
         sheetBaseMatrix.id = "sheet-base-matrix";
-        // Add rows to main content [1,2,3,4...]
+        
         for (let index = 1; index <= ROWS_MAX; index++) {
             let rowIndex = `r${index}`;
-
             let row = this.createElement('div');
             row.id = rowIndex;
             row.setAttribute('class', "row-index");
@@ -92,29 +116,26 @@ class ExcellApp {
             let rowColumns = columns.cloneNode(true);
             rowColumns.id = `c${rowIndex}`;
 
-            row.appendChild(rowColumns);
+            row.innerHTML = rowColumns.innerHTML;
             sheetBaseMatrix.appendChild(row);
         }
         return sheetBaseMatrix;
     }
 
-    buildSheetContentColumn() {
-        let columns = this.createElement('div');
-        columns.setAttribute('class', "row-column");
+    saveDataToStore(e) {
+        let id = e.target.id;
+        let parentId = e.target.parentElement.id;
+        let key = `${parentId}-${id}`;
 
-        for (let index = 1; index <= COL_MAX; index++) {
-            let colIndex = this.createElement('div');
-            colIndex.id = `c${index}`;
-            colIndex.setAttribute('class', "col-inner");
+        store.cells[key] = e.target.value;
+        console.log(key, e.target.value);
+    }
 
-            let input = this.createElement('input');
-            input.id = `i${index}`;
-            input.setAttribute('class', "sheet--input");
-
-            colIndex.appendChild(input);
-            columns.appendChild(colIndex);
+    hookUpInputEvent() {
+        var inputs = document.getElementsByTagName('input');
+        for (let index = 0; index < inputs.length; index++) {
+            inputs[index].addEventListener('input', this.saveDataToStore);
         }
-        return columns;
     }
 
     createElementWithValue(type, value) {
@@ -128,6 +149,20 @@ class ExcellApp {
         return document.createElement(type);
     }
 
+    pickAplhabetLetterBasedOn(index) {
+        if(index < 26){
+            return this.alphabet[index];
+        }
+        
+        let n =  Math.floor( index / this.alphabet.length );
+        let nextLetterIndex = Math.ceil(index - (this.alphabet.length * n));
+        
+        let nextLetter = this.alphabet[nextLetterIndex];
+        let firstLetter = this.alphabet[n-1]; //Not calculating it yet
+
+        return `${firstLetter}${nextLetter}`;
+    }
+
     logTime(msg) {
         let date = new Date();
         let mm = date.getUTCMinutes();
@@ -137,8 +172,9 @@ class ExcellApp {
     }
 }
 
-class SheetStore {
+class SheetDataStore {
     cells = []
   }
-
+  
+store = new SheetDataStore();
 app = new ExcellApp("Demo");
