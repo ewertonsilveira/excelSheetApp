@@ -94,7 +94,7 @@ div#sheet-content-col-index {
     box-sizing: border-box;
 
     font-size: 100%;
-    padding: .5em 1em;
+    padding: .8em 1.2em;
     color: rgba(0,0,0,.8);
     border: transparent;
     background-color: #e6e6e6;
@@ -113,8 +113,18 @@ div#sheet-content-col-index {
 }
 .button-success {
     color: white;
-    margin-right: 40px;
+    margin: 0 40px 0 10px;
     border-radius: 4px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     background: rgb(28, 184, 65);
+}
+
+.loading {
+    width: 80px;
+    height: 40px;
+    border: 0;
+    background-position: center;
+    background-image: url(img/spinner.gif);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
