@@ -1,6 +1,20 @@
 const ROWS_MAX = 100;
 const COL_MAX = 100;
 
+class SheetDataStore {
+    cells = [];
+}
+
+class InputValueData {
+    constructor(id, value, equation, builtInfunc) {
+        this.id = id;
+        this.displayValue = value;
+        this.equation = equation;
+        this.builtInFunction =  builtInfunc
+    }
+
+}
+
 class ExcellApp {
     app;
     alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ]
@@ -88,11 +102,6 @@ class ExcellApp {
         columns.setAttribute('class', "row-column");
 
         for (let index = 1; index <= COL_MAX; index++) {
-            // let colIndex = this.createElement('div');
-            // colIndex.id = `c${index}`;
-            // colIndex.setAttribute('class', "col-inner");
-            // colIndex.appendChild(input);
-
             let input = this.createElement('input');
             input.id = `i${index}`;
             input.setAttribute('class', "sheet--input");
@@ -122,20 +131,50 @@ class ExcellApp {
         return sheetBaseMatrix;
     }
 
+    hookUpInputEvent() {
+        var inputs = document.getElementsByTagName('input');
+        for (let index = 0; index < inputs.length; index++) {
+            inputs[index].addEventListener('blur', this.saveDataToStore);
+            inputs[index].addEventListener('focus', this.retrieveDataFromToStore);
+        }
+    }
+
     saveDataToStore(e) {
         let id = e.target.id;
         let parentId = e.target.parentElement.id;
         let key = `${parentId}-${id}`;
 
-        store.cells[key] = e.target.value;
+        let builtInFunc = '';
+        let value = e.target.value;
+        let equation = e.target.value;
+        if(value.startsWith("=")) {
+            value = eval(value.substring(1, value.length)); //The Evill!!! 
+            e.target.value = value;
+        }
+
+        let inputValue = new InputValueData(id, value, equation, builtInFunc);
+
+        store.cells[key] = inputValue;
+        console.log(key, value);
         console.log(key, e.target.value);
     }
 
-    hookUpInputEvent() {
-        var inputs = document.getElementsByTagName('input');
-        for (let index = 0; index < inputs.length; index++) {
-            inputs[index].addEventListener('input', this.saveDataToStore);
+    retrieveDataFromToStore(e) {
+        let id = e.target.id;
+        let parentId = e.target.parentElement.id;
+        let key = `${parentId}-${id}`;
+
+        let inputData = store.cells[key];
+        if(!inputData) {
+            return true;
         }
+
+        if(inputData.equation) {
+            e.target.value = inputData.equation;
+            return true;
+        }
+
+        e.target.value = value;
     }
 
     createElementWithValue(type, value) {
@@ -172,9 +211,6 @@ class ExcellApp {
     }
 }
 
-class SheetDataStore {
-    cells = []
-  }
   
 store = new SheetDataStore();
 app = new ExcellApp("Demo");
