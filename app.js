@@ -1,5 +1,6 @@
 const ROWS_MAX = 100;
 const COL_MAX = 100;
+const timeouts = [];
 
 class SheetDataStore {
     cells = [];
@@ -50,7 +51,9 @@ class ExcellApp {
         sheetSectionContent.id='sheet-section'
 
         let sheetContent = this.createElement('div');
+        sheetContent.setAttribute('class', 'sheet-content');
         sheetContent.id='sheet-content'
+
 
         let columns = this.buildSheetContentColumn();
         let sheetBaseMatrix = this.buildSheetContentRows(columns);
@@ -70,10 +73,11 @@ class ExcellApp {
     
     drawHeader(appMain) {
         let mainHeader = this.createElement('section');
+        mainHeader.setAttribute('class', 'app-header');
         mainHeader.id='app-header'
 
         let refreshPageBtn = this.createElementWithValue('button', 'refresh');
-        refreshPageBtn.setAttribute('class', 'button-success pure-button')
+        this.setCssClass(refreshPageBtn, 'button-success pure-button');
         refreshPageBtn.id='app-refresh'
 
         let refreshingContent = this.createElement('div');
@@ -86,8 +90,11 @@ class ExcellApp {
 
     buildSheetContentColIndex() {
         let sheetContentColIndex = this.createElement('div');
+        this.setCssClass(sheetContentColIndex, 'sheet-content--col-index');
         sheetContentColIndex.id = 'sheet-content-col-index';
+        
         let colHeadIndex = this.createElement('div');
+        this.setCssClass(colHeadIndex, 'sheet-content--col-head-index');
         colHeadIndex.id = 'sheet-content-col-head-index';
         sheetContentColIndex.appendChild(colHeadIndex);
 
@@ -96,7 +103,7 @@ class ExcellApp {
             let letter = this.pickAplhabetLetterBasedOn(index);
             let colIndex = this.createElementWithValue('div', letter);
             colIndex.id = `${index}-${letter}`;
-            colIndex.setAttribute('class', 'sheet--col-index');
+            this.setCssClass(colIndex, 'sheet--col-index');
             sheetContentColIndex.appendChild(colIndex);
         }
         return sheetContentColIndex;
@@ -109,7 +116,7 @@ class ExcellApp {
         // Create Sheet Content head rows [1,2,3...]
         for (let index = 1; index <= ROWS_MAX; index++) {
             let rowIndex = this.createElementWithValue('div', index);
-            rowIndex.setAttribute('class', 'sheet--row-index');
+            this.setCssClass(rowIndex, 'sheet--row-index');
 
             sheetContentRowIndex.appendChild(rowIndex);
         }
@@ -124,7 +131,7 @@ class ExcellApp {
             let input = this.createElement('input');
             let letter = this.pickAplhabetLetterBasedOn(index);
             input.id = letter;
-            input.setAttribute('class', 'sheet--input');
+            this.setCssClass(input, 'sheet--input');
 
             columns.appendChild(input);
         }
@@ -145,7 +152,7 @@ class ExcellApp {
             let rowIndex = index;
             let row = this.createElement('div');
             row.id = rowIndex;
-            row.setAttribute('class', 'row-index');
+            this.setCssClass(row, 'row-index');
 
             // Add columns to the current row
             let rowColumns = columns.cloneNode(true);
@@ -162,6 +169,20 @@ class ExcellApp {
         }
 
         document.getElementById('app-refresh').addEventListener('click', this.refreshSheetContent.bind(this))
+    }
+
+    removeEvents() {
+        var inputs = document.getElementsByTagName('input');
+        for (let index = 0; index < inputs.length; index++) {
+            inputs[index].removeEventListener('blur', this.saveDataToStore);
+            inputs[index].removeEventListener('focus', this.retrieveDataFromToStore);
+        }
+
+        for (var i=0; i<timeouts.length; i++) {
+            clearTimeout(timeouts[i]);
+        }
+
+        document.getElementById('app-refresh').removeEventListener('click', this.refreshSheetContent.bind(this))
     }
 
     saveDataToStore(e) {
@@ -208,26 +229,27 @@ class ExcellApp {
     }
 
     refreshSheetContent() {
+        // Remove event listeners and timeouts before clean the grid
+        this.removeEvents();
+
+        let loading = document.getElementById('loading');
+        this.setCssClass(loading,  'loading');
+        
+        // Had to put a timer here as we wouldn't see the loading icon Effect
+        timeouts.push(setTimeout(function(){ loading.removeAttribute('class') }, 300));
+
         let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
         sheetBaseMatrix.innerHTML = '<pre class="p-1"> loading...</pre>';
 
-        let loading = document.getElementById('loading');
-        loading.setAttribute('class', 'loading');
-        
-        // Had to put a timer here as we wouldn't see the loading icon Effect
-        setTimeout(function(){ loading.removeAttribute('class') }, 300);
-        
-        let columns = this.buildSheetContentColumn();
-
-        let tmp = this.createElement('div')
-        this.buldSheetRowsAndColumns(columns, tmp);
+        let tmp = this.createElement('div');
+        this.buldSheetRowsAndColumns(this.buildSheetContentColumn(), tmp);        
 
         // Had to put a timer here as we wouldn't see the Refresh Effect
-        setTimeout(function() { 
+        timeouts.push(setTimeout(function() { 
             sheetBaseMatrix.innerHTML = tmp.innerHTML; 
             this.rePopulateUserDataFromStore();    
             this.hookUpEvents();
-        }.bind(this), 100);
+        }.bind(this), 100));
 
     }
 
@@ -254,6 +276,10 @@ class ExcellApp {
 
     createElement(type) {
         return document.createElement(type);
+    }
+
+    setCssClass(el, cssClass) {
+        el.setAttribute('class', cssClass);
     }
 
     pickAplhabetLetterBasedOn(index) {

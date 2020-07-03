@@ -58,25 +58,24 @@ body {
     display: flex;
 }
 
-section#app-header {
+.app-header {
     margin: 6px;
     display: flex;
     flex-direction: row-reverse;
 }
 
-div#sheet-content-col-head-index {
+.sheet-content,
+.sheet-content--col-index {
+    display: flex;
+}
+
+.sheet-content--col-head-index {
     min-height: 28px;
     min-width: 50px;
     border: 1px solid #dcdcdc;
     background-color: rgb(245, 245, 245);
     box-sizing: border-box;
 }
-
-div#sheet-content,
-div#sheet-content-col-index {
-    display: flex;
-}
-
 
 .pure-button {
     display: inline-block;
