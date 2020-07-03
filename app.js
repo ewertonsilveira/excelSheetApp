@@ -25,14 +25,13 @@ class ExcellApp {
     }
 
     init() {
-        console.debug('App stated...');
         this.logTime('Start:');
         
         app = document.getElementById('app');
 
         this.drawAppContent();
 
-        this.hookUpInputEvent();
+        this.hookUpEvents();
 
         this.logTime('End:  ');
     }
@@ -58,6 +57,7 @@ class ExcellApp {
         let sheetContentRowIndex = this.buildSheetContentRowIndex();
         let sheetContentColIndex = this.buildSheetContentColIndex();
         
+        // The adding position matters here as it has a basic layout
         sheetContent.appendChild(sheetContentRowIndex);
         sheetContent.appendChild(sheetBaseMatrix);
         sheetSectionContent.appendChild(sheetContentColIndex);
@@ -91,7 +91,7 @@ class ExcellApp {
         colHeadIndex.id = 'sheet-content-col-head-index';
         sheetContentColIndex.appendChild(colHeadIndex);
 
-        // Create Content head columns [A,B,C...]
+        // Create Sheet Content head columns [A,B,C...]
         for (let index = 1; index <= COL_MAX; index++) {
             let letter = this.pickAplhabetLetterBasedOn(index);
             let colIndex = this.createElementWithValue('div', letter);
@@ -106,11 +106,9 @@ class ExcellApp {
         let sheetContentRowIndex = this.createElement('div');
         sheetContentRowIndex.id = 'sheet-content-row-index';
 
-        // Create Content head rows [1,2,3...]
+        // Create Sheet Content head rows [1,2,3...]
         for (let index = 1; index <= ROWS_MAX; index++) {
-
             let rowIndex = this.createElementWithValue('div', index);
-            rowIndex.id = `r${index}-c${0}`;
             rowIndex.setAttribute('class', 'sheet--row-index');
 
             sheetContentRowIndex.appendChild(rowIndex);
@@ -156,7 +154,7 @@ class ExcellApp {
         }
     }
 
-    hookUpInputEvent() {
+    hookUpEvents() {
         var inputs = document.getElementsByTagName('input');
         for (let index = 0; index < inputs.length; index++) {
             inputs[index].addEventListener('blur', this.saveDataToStore);
@@ -210,22 +208,27 @@ class ExcellApp {
     }
 
     refreshSheetContent() {
+        let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
+        sheetBaseMatrix.innerHTML = '<pre class="p-1"> loading...</pre>';
+
         let loading = document.getElementById('loading');
         loading.setAttribute('class', 'loading');
         
-        setTimeout(function(){ loading.removeAttribute('class') }, 2300);
+        // Had to put a timer here as we wouldn't see the loading icon Effect
+        setTimeout(function(){ loading.removeAttribute('class') }, 300);
         
-        let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
-        sheetBaseMatrix.innerHTML = 'loading...';
         let columns = this.buildSheetContentColumn();
 
         let tmp = this.createElement('div')
         this.buldSheetRowsAndColumns(columns, tmp);
-        sheetBaseMatrix.innerHTML = tmp.innerHTML;
 
-        this.rePopulateUserDataFromStore();
+        // Had to put a timer here as we wouldn't see the Refresh Effect
+        setTimeout(function() { 
+            sheetBaseMatrix.innerHTML = tmp.innerHTML; 
+            this.rePopulateUserDataFromStore();    
+            this.hookUpEvents();
+        }.bind(this), 100);
 
-        this.hookUpInputEvent();
     }
 
     rePopulateUserDataFromStore() {
@@ -276,6 +279,8 @@ class ExcellApp {
     }
 }
 
-  
+/**
+ * Setting up Application and Store
+ */
 store = new SheetDataStore();
 app = new ExcellApp('Demo');

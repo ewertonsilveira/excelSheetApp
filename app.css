@@ -131,3 +131,10 @@ div#sheet-content-col-index {
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+.p-1 {
+    padding: 1rem;
+}
+.p-2 {
+    padding: 2rem;
+}
