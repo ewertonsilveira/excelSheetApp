@@ -6,7 +6,7 @@ class SheetDataStore {
     cells = [];
 }
 
-class InputValueData {
+class InputData {
     constructor(id, value, equation, builtInfunc) {
         this.id = id;
         this.displayValue = value;
@@ -19,7 +19,7 @@ class InputValueData {
 class ExcellApp {
     app;
     alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ]
-    operators = ['+', '-', '*', '/', '%']
+    symbols = ['+', '-', '*', '/', '%']
     
     constructor(name) {
         this.sheetName = name;
@@ -197,17 +197,23 @@ class ExcellApp {
         let builtInFunc = '';
         let value = e.target.value;
         let equation = e.target.value;
+
+        // Requirements 5. and 6. would require the split of each component of the equation 
+        //   i.e. An entry =A1+B2-D4 as such, would need to split the value by each symbol and than, 
+        //   once you have the left and right hand for each block, you will need to do a cell lookup 
+        //   - need to check if the value is a cell index [D4] - to get the cell's value. 
+        //   Once you have it, you need to replace it with the value and run the computation. 
+        // For the requirement number 6. we would need to have a list of available builtin functions,
+        //   and, do a lookup as well to get the func, map it and pass all the possible values to it.
         if(value.startsWith('=')) {
-            // This is too simple, requires way more work
+            // This is so naive, requires way more work
             value = eval(value.substring(1, value.length)); //The Evill!!! 
             e.target.value = value ? value : '';
         }
 
-        let inputValue = new InputValueData(key, value, equation, builtInFunc);
+        let inputValue = new InputData(key, value, equation, builtInFunc);
 
         store.cells[key] = inputValue;
-        console.log(key, value);
-        console.log(key, e.target.value);
     }
 
     retrieveDataFromToStore(e) {
