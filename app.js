@@ -28,9 +28,10 @@ class ExcellApp {
         this.logTime('Start:');
         
         app = document.getElementById("app");
+
         this.drawAppContent();
 
-        this.hookUpInputEvent(); 
+        this.hookUpInputEvent();
 
         this.logTime('End:  ');
     }
@@ -39,6 +40,8 @@ class ExcellApp {
 
         let appMain = this.createElement('div');
         appMain.id="app-main"
+
+        this.drawHeader(appMain);
 
         let mainContent = this.createElement('div');
         mainContent.id="main-content"
@@ -61,6 +64,19 @@ class ExcellApp {
         mainContent.appendChild(sheetSectionContent);        
         appMain.appendChild(mainContent);
         app.appendChild(appMain);
+    }
+
+    
+    drawHeader(appMain) {
+        let mainHeader = this.createElement('section');
+        mainHeader.id="app-header"
+
+        let refreshPageBtn = this.createElementWithValue('button', "refresh");
+        refreshPageBtn.setAttribute('class', 'button-success pure-button')
+        refreshPageBtn.id="app-refresh"
+
+        mainHeader.appendChild(refreshPageBtn);
+        appMain.appendChild(mainHeader);
     }
 
     buildSheetContentColIndex() {
@@ -103,7 +119,8 @@ class ExcellApp {
 
         for (let index = 1; index <= COL_MAX; index++) {
             let input = this.createElement('input');
-            input.id = `i${index}`;
+            let letter = this.pickAplhabetLetterBasedOn(index);
+            input.id = letter;
             input.setAttribute('class', "sheet--input");
 
             columns.appendChild(input);
@@ -115,20 +132,23 @@ class ExcellApp {
         let sheetBaseMatrix = this.createElement('div');
         sheetBaseMatrix.id = "sheet-base-matrix";
         
+        this.buldSheetRowsAndColumns(columns, sheetBaseMatrix);
+        
+        return sheetBaseMatrix;
+    }
+
+    buldSheetRowsAndColumns(columns, sheetBaseMatrix) {
         for (let index = 1; index <= ROWS_MAX; index++) {
-            let rowIndex = `r${index}`;
+            let rowIndex = index;
             let row = this.createElement('div');
             row.id = rowIndex;
             row.setAttribute('class', "row-index");
 
             // Add columns to the current row
             let rowColumns = columns.cloneNode(true);
-            rowColumns.id = `c${rowIndex}`;
-
             row.innerHTML = rowColumns.innerHTML;
             sheetBaseMatrix.appendChild(row);
         }
-        return sheetBaseMatrix;
     }
 
     hookUpInputEvent() {
@@ -137,6 +157,8 @@ class ExcellApp {
             inputs[index].addEventListener('blur', this.saveDataToStore);
             inputs[index].addEventListener('focus', this.retrieveDataFromToStore);
         }
+
+        document.getElementById('app-refresh').addEventListener('click', this.refreshSheetContent.bind(this))
     }
 
     saveDataToStore(e) {
@@ -149,7 +171,7 @@ class ExcellApp {
         let equation = e.target.value;
         if(value.startsWith("=")) {
             value = eval(value.substring(1, value.length)); //The Evill!!! 
-            e.target.value = value;
+            e.target.value = value ? value : '';
         }
 
         let inputValue = new InputValueData(id, value, equation, builtInFunc);
@@ -174,7 +196,13 @@ class ExcellApp {
             return true;
         }
 
-        e.target.value = value;
+        e.target.value = inputData.value ? inputData.value : '';
+    }
+
+    refreshSheetContent() {
+        let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
+        let columns = this.buildSheetContentColumn();
+        this.buldSheetRowsAndColumns(columns, sheetBaseMatrix);
     }
 
     createElementWithValue(type, value) {
@@ -190,7 +218,7 @@ class ExcellApp {
 
     pickAplhabetLetterBasedOn(index) {
         if(index < 26){
-            return this.alphabet[index];
+            return this.alphabet[index-1];
         }
         
         let n =  Math.floor( index / this.alphabet.length );
