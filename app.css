@@ -8,7 +8,7 @@ body {
     background-color: #fff;
     width: 100vw;
     height: 100vh;
-    margin: 10px;
+    margin-top: 10px;
 }
 
 .row-index {
@@ -17,16 +17,22 @@ body {
     display: flex;
 }
 
-.col-index {
+.sheet--row-index,
+.sheet--col-index {
     background-color: rgb(245, 245, 245);
-    border: 1px solid #dcdcdc;
+    border: 1px solid #9c9c9c;
     color: rgb(100, 100, 100);
     font-size: 10px;
-    min-width: 50px;
-    min-height: 28px;
     line-height: 25px;
     text-align: center;
     box-sizing: border-box;
+}
+.sheet--row-index {
+    min-height: 28px;
+    min-width: 50px;
+}
+.sheet--col-index {
+    min-width: 80px;
 }
 
 .col-inner {
@@ -52,19 +58,15 @@ body {
     display: flex;
 }
 
-div#sheet-content-col-index {
-
-}
-
 div#sheet-content-col-head-index {
-    height: 28px;
     min-height: 28px;
-    width: 50px;
+    min-width: 50px;
     border: 1px solid #dcdcdc;
     background-color: rgb(245, 245, 245);
     box-sizing: border-box;
 }
 
-div#sheet-content {
+div#sheet-content,
+div#sheet-content-col-index {
     display: flex;
 }
