@@ -200,16 +200,14 @@ class ExcellApp {
     }
 
     refreshSheetContent() {
-        let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
         let appHeader = document.getElementById('app-header');
-        
         let refreshingContent = this.createElement('div');
         refreshingContent.setAttribute('class', 'loading')
-        
         appHeader.appendChild(refreshingContent);
-
-        setTimeout(function(){ refreshingContent.parentNode.removeChild(refreshingContent) }, 6000);
         
+        setTimeout(function(){ refreshingContent.parentNode.removeChild(refreshingContent) }, 2000);
+        
+        let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
         sheetBaseMatrix.innerHTML = '';
         let columns = this.buildSheetContentColumn();
         this.buldSheetRowsAndColumns(columns, sheetBaseMatrix);
