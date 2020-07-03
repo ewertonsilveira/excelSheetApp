@@ -17,18 +17,18 @@ class InputValueData {
 
 class ExcellApp {
     app;
-    alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ]
-    operators = ["+", "-", "*", "/", "%"]
+    alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ]
+    operators = ['+', '-', '*', '/', '%']
     
     constructor(name) {
         this.sheetName = name;
     }
 
     init() {
-        console.debug("App stated...");
+        console.debug('App stated...');
         this.logTime('Start:');
         
-        app = document.getElementById("app");
+        app = document.getElementById('app');
 
         this.drawAppContent();
 
@@ -40,18 +40,18 @@ class ExcellApp {
     drawAppContent() {
 
         let appMain = this.createElement('div');
-        appMain.id="app-main"
+        appMain.id='app-main'
 
         this.drawHeader(appMain);
 
         let mainContent = this.createElement('div');
-        mainContent.id="main-content"
+        mainContent.id='main-content'
 
         let sheetSectionContent = this.createElement('div');
-        sheetSectionContent.id="sheet-section"
+        sheetSectionContent.id='sheet-section'
 
         let sheetContent = this.createElement('div');
-        sheetContent.id="sheet-content"
+        sheetContent.id='sheet-content'
 
         let columns = this.buildSheetContentColumn();
         let sheetBaseMatrix = this.buildSheetContentRows(columns);
@@ -70,14 +70,14 @@ class ExcellApp {
     
     drawHeader(appMain) {
         let mainHeader = this.createElement('section');
-        mainHeader.id="app-header"
+        mainHeader.id='app-header'
 
-        let refreshPageBtn = this.createElementWithValue('button', "refresh");
+        let refreshPageBtn = this.createElementWithValue('button', 'refresh');
         refreshPageBtn.setAttribute('class', 'button-success pure-button')
-        refreshPageBtn.id="app-refresh"
+        refreshPageBtn.id='app-refresh'
 
         let refreshingContent = this.createElement('div');
-        refreshingContent.id = "loading"
+        refreshingContent.id = 'loading'
         
         mainHeader.appendChild(refreshPageBtn);
         mainHeader.appendChild(refreshingContent);
@@ -86,9 +86,9 @@ class ExcellApp {
 
     buildSheetContentColIndex() {
         let sheetContentColIndex = this.createElement('div');
-        sheetContentColIndex.id = "sheet-content-col-index";
+        sheetContentColIndex.id = 'sheet-content-col-index';
         let colHeadIndex = this.createElement('div');
-        colHeadIndex.id = "sheet-content-col-head-index";
+        colHeadIndex.id = 'sheet-content-col-head-index';
         sheetContentColIndex.appendChild(colHeadIndex);
 
         // Create Content head columns [A,B,C...]
@@ -96,7 +96,7 @@ class ExcellApp {
             let letter = this.pickAplhabetLetterBasedOn(index);
             let colIndex = this.createElementWithValue('div', letter);
             colIndex.id = `${index}-${letter}`;
-            colIndex.setAttribute('class', "sheet--col-index");
+            colIndex.setAttribute('class', 'sheet--col-index');
             sheetContentColIndex.appendChild(colIndex);
         }
         return sheetContentColIndex;
@@ -104,14 +104,14 @@ class ExcellApp {
 
     buildSheetContentRowIndex() {
         let sheetContentRowIndex = this.createElement('div');
-        sheetContentRowIndex.id = "sheet-content-row-index";
+        sheetContentRowIndex.id = 'sheet-content-row-index';
 
         // Create Content head rows [1,2,3...]
         for (let index = 1; index <= ROWS_MAX; index++) {
 
             let rowIndex = this.createElementWithValue('div', index);
             rowIndex.id = `r${index}-c${0}`;
-            rowIndex.setAttribute('class', "sheet--row-index");
+            rowIndex.setAttribute('class', 'sheet--row-index');
 
             sheetContentRowIndex.appendChild(rowIndex);
         }
@@ -120,13 +120,13 @@ class ExcellApp {
 
     buildSheetContentColumn() {
         let columns = this.createElement('div');
-        columns.setAttribute('class', "row-column");
+        columns.setAttribute('class', 'row-column');
 
         for (let index = 1; index <= COL_MAX; index++) {
             let input = this.createElement('input');
             let letter = this.pickAplhabetLetterBasedOn(index);
             input.id = letter;
-            input.setAttribute('class', "sheet--input");
+            input.setAttribute('class', 'sheet--input');
 
             columns.appendChild(input);
         }
@@ -135,7 +135,7 @@ class ExcellApp {
 
     buildSheetContentRows(columns) {
         let sheetBaseMatrix = this.createElement('div');
-        sheetBaseMatrix.id = "sheet-base-matrix";
+        sheetBaseMatrix.id = 'sheet-base-matrix';
         
         this.buldSheetRowsAndColumns(columns, sheetBaseMatrix);
         
@@ -143,12 +143,11 @@ class ExcellApp {
     }
 
     buldSheetRowsAndColumns(columns, sheetBaseMatrix) {
-        let rows = []
         for (let index = 1; index <= ROWS_MAX; index++) {
             let rowIndex = index;
             let row = this.createElement('div');
             row.id = rowIndex;
-            row.setAttribute('class', "row-index");
+            row.setAttribute('class', 'row-index');
 
             // Add columns to the current row
             let rowColumns = columns.cloneNode(true);
@@ -172,10 +171,14 @@ class ExcellApp {
         let parentId = e.target.parentElement.id;
         let key = `${id}${parentId}`;
 
+        if(!e.target.value){
+            return true;
+        }
+
         let builtInFunc = '';
         let value = e.target.value;
         let equation = e.target.value;
-        if(value.startsWith("=")) {
+        if(value.startsWith('=')) {
             // This is too simple, requires way more work
             value = eval(value.substring(1, value.length)); //The Evill!!! 
             e.target.value = value ? value : '';
@@ -203,14 +206,14 @@ class ExcellApp {
             return true;
         }
 
-        e.target.value = inputData.value ? inputData.value : '';
+        e.target.value = inputData.displayValue ? inputData.displayValue : '';
     }
 
     refreshSheetContent() {
         let loading = document.getElementById('loading');
-        loading.setAttribute("class", "loading");
+        loading.setAttribute('class', 'loading');
         
-        setTimeout(function(){ loading.removeAttribute("class") }, 2300);
+        setTimeout(function(){ loading.removeAttribute('class') }, 2300);
         
         let sheetBaseMatrix = document.getElementById('sheet-base-matrix');
         sheetBaseMatrix.innerHTML = 'loading...';
@@ -226,7 +229,17 @@ class ExcellApp {
     }
 
     rePopulateUserDataFromStore() {
-        console.log(store.cells)
+        for (let key in store.cells) {
+            const item = store.cells[key];
+            const letterReg = /[A-Z]/g;
+            const numbersReg = /[0-9]/g;
+
+            const columnIndex = key.match(letterReg).join();
+            const rowIndex = key.match(numbersReg).join();
+
+            let parent = document.getElementById(rowIndex);
+            parent.children[columnIndex].value = item.displayValue;
+        };
     }
 
     createElementWithValue(type, value) {
@@ -265,4 +278,4 @@ class ExcellApp {
 
   
 store = new SheetDataStore();
-app = new ExcellApp("Demo");
+app = new ExcellApp('Demo');
